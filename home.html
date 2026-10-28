@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block content %}
+<div class="card"><h1>Track your order</h1>
+<p class="muted">Enter your order number and the email used when ordering.</p>
+<form method="post" action="{{ url_for('track_form') }}">
+<label>Order number</label><input name="order_number" placeholder="ORD-123456" required>
+<label>Email</label><input name="email" type="email" required>
+<button type="submit">Track</button></form></div>
+{% endblock %}

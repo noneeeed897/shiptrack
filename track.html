@@ -1,0 +1,21 @@
+{% extends "base.html" %}{% block content %}
+<div class="card">
+<h1>Hi {{ first }} 👋</h1>
+<p>Order <b>{{ o.order_number }}</b> &middot; <span class="badge {{ TONE.get(o.status,'') }}">{{ ICON[o.status] }} {{ LABEL[o.status] }}</span></p>
+{% if o.eta and o.status not in ['DELIVERED','CANCELLED','RETURNED','RETURN_INITIATED'] %}<div class="banner">Estimated delivery: {{ o.eta }} &middot; heading to {{ place }}</div>{% endif %}
+{% if o.status in HAPPY %}
+<div class="steps">{% for s in HAPPY %}<div class="step {{ 'done' if loop.index0 <= reached }}"><span class="ic">{{ ICON[s] }}</span>{{ LABEL[s] }}</div>{% endfor %}</div>
+{% endif %}
+{% if o.carrier %}<p class="muted">Carrier: {{ o.carrier }} &middot; Tracking: {{ o.tracking_number }}</p>{% endif %}
+<p class="muted">Items: {{ o.item_summary or '-' }}</p>
+</div>
+<div class="card"><h2>History</h2>
+<ul class="timeline">{% for e in events %}<li><b>{{ ICON[e.status] }} {{ LABEL[e.status] }}</b>{% if e.location %} &middot; {{ e.location }}{% endif %}<br>{{ e.description }}<br><small>{{ e.ts }}</small></li>{% endfor %}</ul></div>
+{% if can_cancel or can_return %}
+<div class="card">
+<form method="post" action="{{ url_for('customer_action', number=o.order_number, action='cancel' if can_cancel else 'return') }}" onsubmit="return confirm('Are you sure?')">
+<input type="hidden" name="email" value="{{ o.email }}">
+{% if can_cancel %}<button class="ghost" type="submit">Cancel order</button>{% else %}<button class="ghost" type="submit">Request a return</button>{% endif %}
+</form></div>
+{% endif %}
+{% endblock %}

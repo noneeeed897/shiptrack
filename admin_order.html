@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% block content %}
+<div class="card"><a href="{{ url_for('admin') }}">&larr; Back</a>
+<h1>{{ o.order_number }} <span class="badge {{ TONE.get(o.status,'') }}">{{ LABEL[o.status] }}</span></h1>
+<p>{{ o.customer_name }} &middot; {{ o.email }} &middot; {{ o.phone or '' }}<br>{{ o.address }}<br>Items: {{ o.item_summary or '-' }} &middot; Amount: {{ o.amount }}</p>
+{% if o.tracking_number %}<p class="muted">{{ o.carrier }} &middot; {{ o.tracking_number }} &middot; ETA {{ o.eta or '-' }}</p>{% endif %}</div>
+<div class="card"><h2>Update status</h2>
+{% if nxt %}<form method="post">
+<label>Next status</label><select name="status">{% for s in nxt %}<option value="{{ s }}">{{ LABEL[s] }}</option>{% endfor %}</select>
+<div class="row"><div><label>Location</label><input name="location"></div>
+<div><label>Note</label><input name="note"></div></div>
+<div class="row"><div><label>Carrier (when shipping)</label><input name="carrier" placeholder="Local Courier"></div>
+<div><label>ETA (when shipping)</label><input name="eta" placeholder="30 Oct 2026"></div></div>
+<button type="submit">Update</button></form>
+{% else %}<p class="muted">This order is finished. No further changes.</p>{% endif %}</div>
+<div class="card"><h2>History</h2><ul class="timeline">{% for e in events %}<li><b>{{ ICON[e.status] }} {{ LABEL[e.status] }}</b>{% if e.location %} &middot; {{ e.location }}{% endif %}<br>{{ e.description }}<br><small>{{ e.ts }} &middot; {{ e.actor }}</small></li>{% endfor %}</ul></div>
+{% endblock %}

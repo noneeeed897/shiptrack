@@ -9,7 +9,7 @@ from flask import (Flask, abort, flash, g, jsonify, redirect, render_template,
                    request, session, url_for)
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-app = Flask(__name__)
+app = Flask(__name__, template_folder=BASE)  # HTML files live next to app.py
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-me")
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
 USE_PG = DATABASE_URL.startswith("postgres")
