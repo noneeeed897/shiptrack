@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}{{ o.order_number }} · Admin{% endblock %}
+{% block body %}
+<p><a href="{{ url_for('admin') }}">← Dashboard</a></p>
+<div class="grid2">
+  <div class="card">
+    <div class="row"><h1 class="big">{{ o.order_number }}</h1>
+      <span class="badge {{ TONE.get(o.status, 'info') }}">{{ ICON[o.status] }} {{ LABEL[o.status] }}</span></div>
+    <dl>
+      <dt>Customer</dt><dd>{{ o.customer_name }} · {{ o.email }} {{ o.phone or '' }}</dd>
+      <dt>Address</dt><dd>{{ o.address }}</dd>
+      <dt>Items</dt><dd>{{ o.item_summary or '-' }} (₹{{ o.amount }})</dd>
+      <dt>Carrier</dt><dd>{{ o.carrier or '-' }} · {{ o.tracking_number or '-' }}</dd>
+      <dt>ETA</dt><dd>{{ o.eta or '-' }}</dd>
+    </dl>
+    <a href="{{ url_for('track', number=o.order_number, email=o.email) }}" target="_blank">View as customer ↗</a>
+  </div>
+  <div class="card"><h2>Move to next stage</h2>
+    {% if nxt %}
+    <form method="post">
+      <input name="location" placeholder="Location (e.g. Guwahati Hub)">
+      <input name="note" placeholder="Note for customer (optional)">
+      {% if 'SHIPPED' in nxt %}
+      <input name="carrier" placeholder="Carrier (e.g. Delhivery)">
+      <label>Estimated delivery date</label><input name="eta" type="date">
+      {% endif %}
+      <div class="btns">
+      {% for s in nxt %}<button class="btn {{ 'bad' if s == 'CANCELLED' else '' }}" name="status" value="{{ s }}">{{ ICON[s] }} {{ LABEL[s] }}</button>{% endfor %}
+      </div>
+    </form>
+    {% else %}<p class="mute">This order is complete. No further steps.</p>{% endif %}
+  </div>
+</div>
+<div class="card"><h2>History</h2><div class="tl">
+{% for e in events %}
+  <div class="ev"><b>{{ ICON[e.status] }} {{ LABEL[e.status] }}</b>
+    <div>{{ e.description }}{% if e.location %} · {{ e.location }}{% endif %}</div>
+    <small>{{ e.ts }} · by {{ e.actor }}</small></div>
+{% endfor %}</div></div>
+{% endblock %}

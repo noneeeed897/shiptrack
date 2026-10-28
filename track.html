@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}{{ o.order_number }} · ShipTrack{% endblock %}
+{% block body %}
+<div class="card">
+  <div class="row">
+    <div><div class="mute">Order</div><h1 class="big">{{ o.order_number }}</h1>
+      <div class="mute">Hi {{ first }} · {{ o.item_summary or 'Your items' }}</div></div>
+    <span class="badge {{ TONE.get(o.status, 'info') }}">{{ ICON[o.status] }} {{ LABEL[o.status] }}</span>
+  </div>
+  {% if o.eta and o.status in ['SHIPPED','IN_TRANSIT','OUT_FOR_DELIVERY','DELIVERY_FAILED','ON_HOLD'] %}
+  <div class="eta">Estimated delivery: <b>{{ o.eta }}</b></div>{% endif %}
+  {% if o.status not in HAPPY %}
+  <div class="alert {{ TONE.get(o.status, 'info') }}">{{ ICON[o.status] }} {{ events[0].description }}</div>{% endif %}
+  <div class="steps">
+  {% for s in HAPPY %}
+    {% set done = loop.index0 < reached or o.status == 'DELIVERED' %}
+    <div class="step {{ 'done' if done else ('now' if loop.index0 == reached else '') }}">
+      <div class="dot">{{ '✓' if done else ICON[s] }}</div>{{ LABEL[s] }}</div>
+  {% endfor %}
+  </div>
+</div>
+
+<div class="grid2">
+  <div class="card"><h2>Shipment details</h2>
+    <dl>
+      <dt>Carrier</dt><dd>{{ o.carrier or 'Not shipped yet' }}</dd>
+      <dt>Tracking no.</dt><dd>{{ o.tracking_number or '-' }}</dd>
+      <dt>Delivering to</dt><dd>{{ place }}</dd>
+      <dt>Placed on</dt><dd>{{ o.created_at }}</dd>
+    </dl>
+  </div>
+  <div class="card"><h2>Shipment history</h2>
+    <div class="tl">
+    {% for e in events %}
+      <div class="ev"><b>{{ ICON[e.status] }} {{ LABEL[e.status] }}</b>
+        <div>{{ e.description }}{% if e.location %} · {{ e.location }}{% endif %}</div>
+        <small>{{ e.ts }}</small></div>
+    {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% if can_cancel or can_return %}
+<div class="card"><h2>Need to change something?</h2>
+  {% if can_cancel %}
+  <form method="post" action="{{ url_for('customer_action', number=o.order_number, action='cancel') }}" onsubmit="return confirm('Cancel this order?')">
+    <input type="hidden" name="email" value="{{ o.email }}"><button class="btn bad">Cancel order</button></form>
+  {% endif %}
+  {% if can_return %}
+  <form method="post" action="{{ url_for('customer_action', number=o.order_number, action='return') }}" onsubmit="return confirm('Request a return?')">
+    <input type="hidden" name="email" value="{{ o.email }}"><button class="btn ghost">Request a return</button></form>
+  {% endif %}
+</div>
+{% endif %}
+<p><a href="{{ url_for('home') }}">← Track another order</a></p>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block body %}
+<section class="hero">
+  <h1>Where is my order?</h1>
+  <p>Enter your order number and email to see live shipment progress.</p>
+</section>
+<div class="card narrow">
+  <form action="{{ url_for('track_form') }}" method="post">
+    <label>Order number</label><input name="order_number" placeholder="ORD-123456" required>
+    <label>Email used at checkout</label><input name="email" type="email" placeholder="you@example.com" required>
+    <button class="btn">Track my order</button>
+  </form>
+</div>
+<div class="chips"><span>📦 Real-time status</span><span>🕒 Full history</span><span>↩️ Cancel or return</span></div>
+{% endblock %}
